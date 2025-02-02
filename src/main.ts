@@ -4,8 +4,11 @@ import { Logger } from "@nestjs/common";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { collectDefaultMetrics } from "prom-client";
 
 async function bootstrap() {
+  collectDefaultMetrics();
+
   const sdk = new NodeSDK({
     traceExporter: new ConsoleSpanExporter(),
     sampler: { shouldSample: () => ({ decision: 1 }) },
