@@ -5,6 +5,9 @@ import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { collectDefaultMetrics } from "prom-client";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 async function bootstrap() {
   collectDefaultMetrics();
@@ -28,14 +31,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("clients/api", app, document);
 
-  app.enableCors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  });
-
-  await app.listen(3333);
-  Logger.log("Application is running on: http://localhost:3333");
+  const PORT = process.env.PORT || 3333;
+  await app.listen(PORT);
+  Logger.log(`Application is running on: http://localhost:${PORT}`);
 }
 
 bootstrap();
