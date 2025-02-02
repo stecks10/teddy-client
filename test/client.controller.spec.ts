@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ClientController } from "./client.controller";
-import { ClientService } from "./client.service";
-import { LoggerServiceImpl } from "../logger/logger.service";
-import { Client } from "./client.entity";
+import { ClientController } from "../src/client/client.controller";
+import { ClientService } from "../src/client/client.service";
+import { LoggerServiceImpl } from "../src/logger/logger.service";
+import { Client } from "../src/client/client.entity";
 
 describe("ClientController", () => {
   let controller: ClientController;

@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { ClientService } from "./client.service";
+import { ClientService } from "../src/client/client.service";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Client } from "./client.entity";
-import { LoggerServiceImpl } from "../logger/logger.service";
+import { Client } from "../src/client/client.entity";
+import { LoggerServiceImpl } from "../src/logger/logger.service";
 import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 
