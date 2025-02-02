@@ -34,7 +34,7 @@ async function bootstrap() {
   console.log("CORS está configurado para o frontend:", process.env.FRONT_URL);
 
   app.enableCors({
-    origin: process.env.FRONT_URL,
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
