@@ -31,6 +31,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("clients/api", app, document);
 
+  console.log("CORS está configurado para o frontend:", process.env.FRONT_URL);
+
   app.enableCors({
     origin: process.env.FRONT_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
