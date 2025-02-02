@@ -17,19 +17,24 @@ import {
 import { ClientService } from "./client.service";
 import { Client } from "./client.entity";
 import { ClientDto } from "../dto/client.dto";
+import { LoggerServiceImpl } from "src/logger/logger.service";
 
-@ApiTags("clients") // Grupo no Swagger
+@ApiTags("clients")
 @Controller("clients")
 export class ClientController {
-  constructor(private readonly clientService: ClientService) {}
+  constructor(
+    private readonly clientService: ClientService,
+    private readonly logger: LoggerServiceImpl
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Criar um novo cliente" })
   @ApiBody({ type: ClientDto })
   @ApiResponse({ status: 201, description: "Cliente criado com sucesso." })
   @ApiResponse({ status: 400, description: "Dados inválidos." })
-  create(@Body() client: Client) {
-    return this.clientService.create(client);
+  async create(@Body() client: Client) {
+    this.logger.log(`Criando novo cliente: ${client.name}`);
+    return await this.clientService.create(client);
   }
 
   @Get()
@@ -38,8 +43,9 @@ export class ClientController {
     status: 200,
     description: "Lista de clientes retornada com sucesso.",
   })
-  findAll() {
-    return this.clientService.findAll();
+  async findAll() {
+    this.logger.log("Buscando todos os clientes...");
+    return await this.clientService.findAll();
   }
 
   @Get("favorites")
