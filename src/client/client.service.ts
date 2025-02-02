@@ -3,6 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Client } from "./client.entity";
 
+const parseCurrency = (value: string): number => {
+  const numberValue = value.replace(/[^\d.-]/g, "");
+  return parseFloat(numberValue);
+};
+
 @Injectable()
 export class ClientService {
   constructor(
@@ -12,6 +17,9 @@ export class ClientService {
 
   async create(client: Client): Promise<any> {
     try {
+      client.salary = parseCurrency(client.salary.toString());
+      client.companyValue = parseCurrency(client.companyValue.toString());
+
       const createdClient = await this.clientRepository.save(client);
       return {
         message: "Usuário criado com sucesso",
@@ -27,7 +35,7 @@ export class ClientService {
   }
 
   async findFavorites(): Promise<Client[]> {
-    return await this.clientRepository.find({ where: { isFavorite: true } });
+    return await this.clientRepository.find({ where: { selected: true } });
   }
 
   async update(id: string, client: Partial<Client>): Promise<any> {
@@ -38,6 +46,10 @@ export class ClientService {
     if (!existingClient) {
       throw new NotFoundException(`Client with id ${id} not found`);
     }
+
+    if (client.salary) client.salary = parseCurrency(client.salary.toString());
+    if (client.companyValue)
+      client.companyValue = parseCurrency(client.companyValue.toString());
 
     await this.clientRepository.update(id, client);
     const updatedClient = await this.clientRepository.findOne({
@@ -77,7 +89,7 @@ export class ClientService {
       };
     }
 
-    client.isFavorite = !client.isFavorite;
+    client.selected = !client.selected;
     const updatedClient = await this.clientRepository.save(client);
 
     return {

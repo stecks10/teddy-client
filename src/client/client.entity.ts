@@ -16,7 +16,7 @@ export class Client {
   companyValue: number;
 
   @Column({ default: false })
-  isFavorite: boolean;
+  selected: boolean;
 
   constructor() {
     if (!this.id) {
