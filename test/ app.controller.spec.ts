@@ -13,7 +13,7 @@ describe("AppController", () => {
         {
           provide: AppService,
           useValue: {
-            getHello: jest.fn().mockReturnValue("Hello World!"), // Mock do método getHello
+            getHello: jest.fn().mockReturnValue("Hello World!"),
           },
         },
       ],
@@ -30,6 +30,6 @@ describe("AppController", () => {
   it('deve retornar "Hello World!"', () => {
     const result = appController.getHello();
     expect(result).toBe("Hello World!");
-    expect(appService.getHello).toHaveBeenCalled(); // Verifica se o método foi chamado
+    expect(appService.getHello).toHaveBeenCalled();
   });
 });

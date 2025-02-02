@@ -7,7 +7,7 @@ describe("LoggerServiceImpl", () => {
 
   beforeEach(() => {
     logger = new LoggerServiceImpl();
-    winstonLogger = (logger as any).logger; // Acessa o logger interno do winston
+    winstonLogger = (logger as any).logger;
   });
 
   it("should be defined", () => {
