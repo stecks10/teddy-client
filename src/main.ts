@@ -35,7 +35,7 @@ async function bootstrap() {
     origin: process.env.FRONT_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credential: true,
+    credentials: true,
   });
 
   const PORT = process.env.PORT || 3333;
