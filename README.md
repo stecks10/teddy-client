@@ -90,7 +90,7 @@ npm run test
 
 ## Autor
 
-- **Seu Nome** - [GitHub](https://github.com/seuusuario)
+- **Vitor Nunes do Nascimento** - 
 
 ## Licença
 
