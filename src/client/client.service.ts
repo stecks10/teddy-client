@@ -1,29 +1,26 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, HttpException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Client } from "./client.entity";
 import { LoggerServiceImpl } from "src/logger/logger.service";
-
-const parseCurrency = (value: string): number => {
-  const numberValue = value.replace(/[^\d.-]/g, "");
-  return parseFloat(numberValue);
-};
+import { parseCurrency } from "src/utils/parse-currency.util";
 
 @Injectable()
 export class ClientService {
   constructor(
     @InjectRepository(Client)
-    private clientRepository: Repository<Client>,
+    private readonly clientRepository: Repository<Client>,
     private readonly logger: LoggerServiceImpl
   ) {}
 
-  async create(client: Client): Promise<any> {
-    this.logger;
+  async create(client: Client): Promise<{ message: string; client: Client }> {
     try {
       client.salary = parseCurrency(client.salary.toString());
       client.companyValue = parseCurrency(client.companyValue.toString());
 
-      this.logger.log(`Criando novo cliente: ${client.name}`);
+      this.logger.log(
+        `Criando cliente: ${client.name}, salário: ${client.salary}, valor da empresa: ${client.companyValue}`
+      );
 
       const createdClient = await this.clientRepository.save(client);
 
@@ -35,7 +32,14 @@ export class ClientService {
       };
     } catch (error) {
       this.logger.error(`Erro ao criar cliente: ${error.message}`, error.stack);
-      throw new Error("Erro ao criar usuário: " + error.message);
+      throw new HttpException(
+        {
+          statusCode: 500,
+          message: "Erro ao criar usuário",
+          error: error.message,
+        },
+        500
+      );
     }
   }
 
@@ -47,24 +51,28 @@ export class ClientService {
   }
 
   async findFavorites(): Promise<Client[]> {
-    this.logger.log("Buscando favoritos...");
-    const favoriteClients = await this.clientRepository.find({
+    this.logger.log("Buscando clientes favoritos...");
+    const favorites = await this.clientRepository.find({
       where: { selected: true },
     });
     this.logger.log(
-      `Número de favoritos encontrados: ${favoriteClients.length}`
+      `Número de clientes favoritos encontrados: ${favorites.length}`
     );
-    return favoriteClients;
+    return favorites;
   }
 
-  async update(id: string, client: Partial<Client>): Promise<any> {
+  async update(
+    id: string,
+    client: Partial<Client>
+  ): Promise<{ message: string; client: Client }> {
     this.logger.log(`Atualizando cliente com id ${id}...`);
+
     const existingClient = await this.clientRepository.findOne({
       where: { id },
     });
 
     if (!existingClient) {
-      this.logger.warn(`Cliente com id ${id} não encontrado para atualização.`);
+      this.logger.warn(`Cliente com id ${id} não encontrado.`);
       throw new NotFoundException(`Client with id ${id} not found`);
     }
 
@@ -77,6 +85,13 @@ export class ClientService {
       where: { id },
     });
 
+    if (!updatedClient) {
+      this.logger.warn(`Cliente com id ${id} não encontrado após atualização.`);
+      throw new NotFoundException(
+        `Client with id ${id} not found after update`
+      );
+    }
+
     this.logger.log(`Cliente com id ${id} atualizado com sucesso.`);
 
     return {
@@ -85,14 +100,13 @@ export class ClientService {
     };
   }
 
-  async remove(id: string): Promise<any> {
+  async remove(id: string): Promise<{ message: string }> {
     this.logger.log(`Removendo cliente com id ${id}...`);
-    const client = await this.clientRepository.findOne({
-      where: { id },
-    });
+
+    const client = await this.clientRepository.findOne({ where: { id } });
 
     if (!client) {
-      this.logger.warn(`Cliente com id ${id} não encontrado para exclusão.`);
+      this.logger.warn(`Cliente com id ${id} não encontrado.`);
       throw new NotFoundException(`Client with id ${id} not found`);
     }
 
@@ -105,28 +119,23 @@ export class ClientService {
     };
   }
 
-  async toggleFavorite(id: string): Promise<any> {
-    this.logger.log(
-      `Atualizando status de favorito para cliente com id ${id}...`
-    );
-    const client = await this.clientRepository.findOne({
-      where: { id },
-    });
+  async toggleFavorite(
+    id: string
+  ): Promise<{ message: string; client: Client }> {
+    this.logger.log(`Trocando status de favorito para cliente com id ${id}...`);
+
+    const client = await this.clientRepository.findOne({ where: { id } });
 
     if (!client) {
-      this.logger.warn(
-        `Cliente com id ${id} não encontrado para atualizar status de favorito.`
-      );
-      return {
-        message: "Cliente não encontrado",
-      };
+      this.logger.warn(`Cliente com id ${id} não encontrado.`);
+      throw new NotFoundException(`Client with id ${id} not found`);
     }
 
     client.selected = !client.selected;
     const updatedClient = await this.clientRepository.save(client);
 
     this.logger.log(
-      `Status de favorito do cliente com id ${id} atualizado para ${client.selected ? "favorito" : "não favorito"}.`
+      `Status de favorito atualizado para ${client.selected ? "favorito" : "não favorito"}`
     );
 
     return {

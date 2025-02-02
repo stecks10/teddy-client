@@ -2,10 +2,9 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { Logger } from "@nestjs/common";
 import { NodeSDK } from "@opentelemetry/sdk-node";
-import {
-  SimpleSpanProcessor,
-  ConsoleSpanExporter,
-} from "@opentelemetry/sdk-trace-base";
+import { ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+
 async function bootstrap() {
   const sdk = new NodeSDK({
     traceExporter: new ConsoleSpanExporter(),
@@ -15,6 +14,16 @@ async function bootstrap() {
   sdk.start();
 
   const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle("Client API")
+    .setDescription("API para gerenciamento de clientes")
+    .setVersion("1.0")
+    .addTag("clients")
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("clients/api", app, document);
 
   app.enableCors({
     origin: "http://localhost:5173",
