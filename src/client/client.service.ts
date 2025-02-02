@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Client } from "./client.entity";
 import { LoggerServiceImpl } from "src/logger/logger.service";
-import { parseCurrency } from "src/utils/parse-currency.util";
+import { parseBRLCurrency } from "src/utils/parse-currency.util";
 
 @Injectable()
 export class ClientService {
@@ -15,8 +15,8 @@ export class ClientService {
 
   async create(client: Client): Promise<{ message: string; client: Client }> {
     try {
-      client.salary = parseCurrency(client.salary.toString());
-      client.companyValue = parseCurrency(client.companyValue.toString());
+      client.salary = parseBRLCurrency(client.salary.toString());
+      client.companyValue = parseBRLCurrency(client.companyValue.toString());
 
       this.logger.log(
         `Criando cliente: ${client.name}, salário: ${client.salary}, valor da empresa: ${client.companyValue}`
@@ -76,9 +76,10 @@ export class ClientService {
       throw new NotFoundException(`Client with id ${id} not found`);
     }
 
-    if (client.salary) client.salary = parseCurrency(client.salary.toString());
+    if (client.salary)
+      client.salary = parseBRLCurrency(client.salary.toString());
     if (client.companyValue)
-      client.companyValue = parseCurrency(client.companyValue.toString());
+      client.companyValue = parseBRLCurrency(client.companyValue.toString());
 
     await this.clientRepository.update(id, client);
     const updatedClient = await this.clientRepository.findOne({
